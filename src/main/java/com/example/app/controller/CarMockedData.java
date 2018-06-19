@@ -2,7 +2,7 @@ package com.example.app.controller;
 
 import com.example.app.entity.Car;
 import com.example.app.entity.CarLocation;
-import com.example.app.entity.CarSatus;
+import com.example.app.entity.CarStatus;
 import com.example.app.entity.ParkingMeterStatus;
 
 import java.util.ArrayList;
@@ -25,25 +25,25 @@ public class CarMockedData {
     public CarMockedData(){
         cars = new ArrayList<Car>();
         cars.add(new Car(1, "AAAAAB222",
-                CarLocation.OUTSIDE, CarSatus.VIP, ParkingMeterStatus.OFF));
+                CarLocation.OUTSIDE, CarStatus.VIP, ParkingMeterStatus.OFF));
         cars.add(new Car(2, "BBBBBSSS",
-                CarLocation.OUTSIDE, CarSatus.REGULAR, ParkingMeterStatus.OFF));
+                CarLocation.OUTSIDE, CarStatus.REGULAR, ParkingMeterStatus.OFF));
         cars.add(new Car(3, "WWWWW",
-                CarLocation.INSIDE, CarSatus.REGULAR, ParkingMeterStatus.OFF));
+                CarLocation.INSIDE, CarStatus.REGULAR, ParkingMeterStatus.OFF));
         cars.add(new Car(4, "WERWE2",
-                CarLocation.OUTSIDE, CarSatus.REGULAR, ParkingMeterStatus.OFF));
+                CarLocation.OUTSIDE, CarStatus.REGULAR, ParkingMeterStatus.OFF));
         cars.add(new Car(5, "LUBRBR",
-                CarLocation.OUTSIDE, CarSatus.VIP, ParkingMeterStatus.OFF));
+                CarLocation.OUTSIDE, CarStatus.VIP, ParkingMeterStatus.OFF));
         cars.add(new Car(6, "RRRR",
-                CarLocation.INSIDE, CarSatus.REGULAR, ParkingMeterStatus.OFF));
+                CarLocation.INSIDE, CarStatus.REGULAR, ParkingMeterStatus.OFF));
         cars.add(new Car(7, "RRRRSSSW",
-                CarLocation.OUTSIDE, CarSatus.REGULAR, ParkingMeterStatus.OFF));
+                CarLocation.OUTSIDE, CarStatus.REGULAR, ParkingMeterStatus.OFF));
         cars.add(new Car(8, "WERTVFR",
-                CarLocation.OUTSIDE, CarSatus.VIP, ParkingMeterStatus.OFF));
+                CarLocation.OUTSIDE, CarStatus.VIP, ParkingMeterStatus.OFF));
         cars.add(new Car(9, "WDERF",
-                CarLocation.INSIDE, CarSatus.REGULAR, ParkingMeterStatus.OFF));
+                CarLocation.INSIDE, CarStatus.REGULAR, ParkingMeterStatus.OFF));
         cars.add(new Car(10, "TRTRTRT",
-                CarLocation.OUTSIDE, CarSatus.VIP, ParkingMeterStatus.OFF));
+                CarLocation.OUTSIDE, CarStatus.VIP, ParkingMeterStatus.OFF));
     }
 
 
@@ -86,7 +86,7 @@ public class CarMockedData {
         for(Car car: cars) {
             if(car.getCarNumber().toLowerCase().contains(searchTerm.toLowerCase()) ||
                     car.getCarLocation().toString().toLowerCase().contains(searchTerm.toLowerCase()) ||
-                    car.getCarSatus().toString().toLowerCase().contains(searchTerm.toLowerCase())) {
+                    car.getCarStatus().toString().toLowerCase().contains(searchTerm.toLowerCase())) {
                 searchedCars.add(car);
             }
         }
