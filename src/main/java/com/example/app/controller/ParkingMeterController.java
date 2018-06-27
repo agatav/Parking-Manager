@@ -3,12 +3,10 @@ package com.example.app.controller;
 import com.example.app.entity.ParkingMeter;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 @RestController
 public class ParkingMeterController {
@@ -24,17 +22,17 @@ public class ParkingMeterController {
         return parkingMeterData.fetchMeters();
     }
 
-
     @GetMapping("/owner/{carNumber}")
-    public List<ParkingMeter> showMetersByCarNumber(@PathVariable String carNumber) {
+    public List<ParkingMeter> showOwnerMetersByCarNumber(@PathVariable String carNumber) {
         String carId = carNumber;
         return parkingMeterData.getParkingMeterByCar(carId);
     }
 
-    @GetMapping("/owner/{day}")
-    public List<ParkingMeter> showMetersByDay(@PathVariable String day) throws ParseException {
-        DateFormat format = new SimpleDateFormat("d MMM yyyy HH:mm:ss", Locale.ENGLISH);
-        Date date = format.parse(day);
+    @GetMapping("/owner/{day}/{month}/{year}")
+    public List<ParkingMeter> showMetersByDay(@PathVariable String day, @PathVariable String month, @PathVariable String year) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        String dateInString = day+"/"+month+"/"+year;
+        Date date = formatter.parse(dateInString);
         return parkingMeterData.getParkingMeterByDate(date);
     }
 
@@ -44,15 +42,19 @@ public class ParkingMeterController {
         return parkingMeterData.sumCosts(parkingMeterData.getParkingMeterByCar(carId));
     }
 
-    @GetMapping("/owner/{day}/sum")
-    public double showCostByDay(@PathVariable String day) throws ParseException {
-        String date = day;
-        return parkingMeterData.sumCosts(showMetersByDay(date));
+    @GetMapping("/owner/{day}/{month}/{year}/sum")
+    public double showCostByDay(@PathVariable String day, @PathVariable String month, @PathVariable String year) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        String dateInString = day+"/"+month+"/"+year;
+        Date date = formatter.parse(dateInString);
+        return parkingMeterData.sumCosts(parkingMeterData.getParkingMeterByDate(date));
     }
 
     @GetMapping("/driver/{carNumber}")
-    public List<ParkingMeter> showMetersByNumber(@PathVariable String carNumber) {
-        String carId = carNumber;
-        return parkingMeterData.getParkingMeterByCar(carId);
+    public List<ParkingMeter> showMetersByCarNumber(@PathVariable String carNumber) {
+        String car = carNumber;
+        return parkingMeterData.getParkingMeterByCar(car);
     }
+
+
 }

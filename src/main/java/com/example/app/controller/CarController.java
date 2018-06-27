@@ -5,6 +5,9 @@ import com.example.app.entity.CarLocation;
 import com.example.app.entity.ParkingMeterStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -48,10 +51,19 @@ public class CarController {
         return carMockedData.updateCarLocation(carId, location);
     }
 
-    @PutMapping("/driver/{carNumber}/parkingMeter")
-    public Car updateParkingMeterStatus(@PathVariable String carNumber, @RequestBody Map<String, ParkingMeterStatus> body){
+    @PostMapping("/driver/{carNumber}/parkingMeter")
+    public Car updateParkingMeterStatus(@PathVariable String carNumber, @RequestBody Map<String, ParkingMeterStatus> body) throws ParseException {
         String carId = carNumber.toUpperCase();
         ParkingMeterStatus status = body.get("parkingMeter");
+        DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        if (status == ParkingMeterStatus.ON) {
+            int id = ParkingMeterData.getInstance().fetchLargestMeterId().getId() + 1;
+            ParkingMeterData.getInstance().createMeter(id, carNumber, format.getCalendar().getTime());
+        }
+        else {
+            int id = ParkingMeterData.getInstance().getLatestParkingMeter(carNumber).getId();
+            ParkingMeterData.getInstance().updateMeter(id, format.getCalendar().getTime());
+        }
         return carMockedData.updateParkingMeterStatus(carId, status);
     }
 
