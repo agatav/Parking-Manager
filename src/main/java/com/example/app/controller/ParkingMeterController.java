@@ -31,8 +31,8 @@ public class ParkingMeterController {
 
     @GetMapping("/owner/{day}/{month}/{year}")
     public List<ParkingMeter> showMetersByDay(@PathVariable String day, @PathVariable String month, @PathVariable String year) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        String dateInString = day+"/"+month+"/"+year;
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
+        String dateInString = year+"-"+month+"-"+day;
         Date date = formatter.parse(dateInString);
         return parkingMeterRepository.findParkingMetersByStoppedAt(date);
     }
@@ -46,8 +46,8 @@ public class ParkingMeterController {
 
     @GetMapping("/owner/{day}/{month}/{year}/sum")
     public double showCostByDay(@PathVariable String day, @PathVariable String month, @PathVariable String year) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        String dateInString = day+"/"+month+"/"+year;
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
+        String dateInString = year+"-"+month+"-"+day;
         Date date = formatter.parse(dateInString);
         List<ParkingMeter> meters = parkingMeterRepository.findParkingMetersByStoppedAt(date);
         return sumCosts(meters);
