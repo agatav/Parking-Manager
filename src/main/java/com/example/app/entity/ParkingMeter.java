@@ -1,11 +1,16 @@
 package com.example.app.entity;
 
+import javax.persistence.*;
 import java.util.Date;
 
-
+@Entity
+@Table(name = "parking-meter")
 public class ParkingMeter {
 
+    @Id
+    @GeneratedValue
     private int id;
+
     private String carNumber;
     private Date createdAt;
     private Date stoppedAt;
