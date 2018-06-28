@@ -22,6 +22,13 @@ public class ParkingMeter {
         this.setCost(cost);
     }
 
+    public ParkingMeter(String carNumber, Date createdAt, Date stoppedAt, double cost) {
+        this.setCarNumber(carNumber);
+        this.setCreatedAt(createdAt);
+        this.setStoppedAt(stoppedAt);
+        this.setCost(cost);
+    }
+
     public int getId() {
         return id;
     }
