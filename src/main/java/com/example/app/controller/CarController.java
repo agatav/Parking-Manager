@@ -4,11 +4,7 @@ import com.example.app.entity.Car;
 import com.example.app.entity.CarLocation;
 import com.example.app.entity.ParkingMeter;
 import com.example.app.entity.ParkingMeterStatus;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -17,7 +13,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 public class CarController {
@@ -52,10 +48,8 @@ public class CarController {
     }
 
     @PostMapping("/operator/search")
-    public List<Car> search(@RequestBody Map<String, String> body){
-        String searchTerm = body.get("text");
-        return carRepository.findByCarNumberContainingOrCarLocationContainingOrCarStatusContaining(searchTerm,
-                searchTerm, searchTerm);
+    public List<Car> search(@RequestParam("text") String searchTerm){
+        return carRepository.findByCarNumberContaining(searchTerm.toUpperCase());
     }
 
 
