@@ -1,21 +1,23 @@
 package com.example.app.controller;
 
 import com.example.app.entity.ParkingMeter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+
 
 @RestController
 public class ParkingMeterController {
 
-    @Autowired
-    ParkingMeterRepository parkingMeterRepository;
+    private final ParkingMeterRepository parkingMeterRepository;
 
-    public ParkingMeterController() throws ParseException {
+    public ParkingMeterController(ParkingMeterRepository parkingMeterRepository) {
+        this.parkingMeterRepository = parkingMeterRepository;
     }
 
     @GetMapping("/owner/meters")
@@ -25,45 +27,43 @@ public class ParkingMeterController {
 
     @GetMapping("/owner/{carNumber}")
     public List<ParkingMeter> showOwnerMetersByCarNumber(@PathVariable String carNumber) {
-        String carId = carNumber;
-        return parkingMeterRepository.findAllByCarNumber(carId);
+        return parkingMeterRepository.findAllByCarNumber(carNumber.toUpperCase());
     }
 
     @GetMapping("/owner/{day}/{month}/{year}")
-    public List<ParkingMeter> showMetersByDay(@PathVariable String day, @PathVariable String month, @PathVariable String year) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
-        String dateInString = year+"-"+month+"-"+day;
-        Date date = formatter.parse(dateInString);
-        return parkingMeterRepository.findParkingMetersByStoppedAt(date);
+    public List<ParkingMeter> showMetersByDay(@PathVariable String day, @PathVariable String month,
+                                              @PathVariable String year) {
+        String localDateString = year+"-"+month+"-"+day;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate formatDate = LocalDate.parse(localDateString, formatter);
+        return parkingMeterRepository.findAllByStoppedAtDay(formatDate);
     }
 
     @GetMapping("/owner/{carNumber}/sum")
-    public double showCostByCarNumber(@PathVariable String carNumber) {
-        String carId = carNumber;
-        List<ParkingMeter> meters = parkingMeterRepository.findAllByCarNumber(carId);
+    public BigDecimal showCostByCarNumber(@PathVariable String carNumber) {
+        List<ParkingMeter> meters = parkingMeterRepository.findAllByCarNumber(carNumber.toUpperCase());
         return sumCosts(meters);
     }
 
     @GetMapping("/owner/{day}/{month}/{year}/sum")
-    public double showCostByDay(@PathVariable String day, @PathVariable String month, @PathVariable String year) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
-        String dateInString = year+"-"+month+"-"+day;
-        Date date = formatter.parse(dateInString);
-        List<ParkingMeter> meters = parkingMeterRepository.findParkingMetersByStoppedAt(date);
+    public BigDecimal showCostByDay(@PathVariable String day, @PathVariable String month, @PathVariable String year) {
+        String localDateString = year+"-"+month+"-"+day;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate formatDate = LocalDate.parse(localDateString, formatter);
+        List<ParkingMeter> meters = parkingMeterRepository.findAllByStoppedAtDay(formatDate);
         return sumCosts(meters);
 
     }
 
     @GetMapping("/driver/{carNumber}")
     public List<ParkingMeter> showMetersByCarNumber(@PathVariable String carNumber) {
-        String car = carNumber;
-        return parkingMeterRepository.findAllByCarNumber(car);
+        return parkingMeterRepository.findAllByCarNumber(carNumber.toUpperCase());
     }
 
-    private double sumCosts(List<ParkingMeter> meters){
-        double sum = 0;
+    private BigDecimal sumCosts(List<ParkingMeter> meters){
+        BigDecimal sum = new BigDecimal("0.0");
         for(ParkingMeter meter: meters) {
-            sum+=meter.getCost();
+            sum= sum.add(meter.getCost());
         }
         return sum;
     }

@@ -4,23 +4,35 @@ import com.example.app.entity.Car;
 import com.example.app.entity.CarLocation;
 import com.example.app.entity.ParkingMeter;
 import com.example.app.entity.ParkingMeterStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 public class CarController {
-    @Autowired
-    CarRepository carRepository;
-    ParkingMeterRepository parkingMeterRepository;
+
+    private final CarRepository carRepository;
+    private final ParkingMeterRepository parkingMeterRepository;
+
+    public CarController(CarRepository carRepository, ParkingMeterRepository parkingMeterRepository) {
+        this.carRepository = carRepository;
+        this.parkingMeterRepository = parkingMeterRepository;
+    }
 
     @GetMapping("/owner/cars")
     public List<Car> index(){
+
         return carRepository.findAll();
     }
 
@@ -30,15 +42,13 @@ public class CarController {
     }
 
     @GetMapping("/operator/cars/{id}")
-    public Car showCarsById(@PathVariable String id){
-        int carId = Integer.parseInt(id);
-        return carRepository.findCarById(carId);
+    public Car showCarsById(@PathVariable int id){
+        return carRepository.findCarById(id);
     }
 
     @GetMapping("/operator/cars/number/{carNumber}")
     public Car showCarsByNumber(@PathVariable String carNumber){
-        String carId = carNumber.toUpperCase();
-        return carRepository.findCarByCarNumber(carId);
+        return carRepository.findCarByCarNumber(carNumber.toUpperCase());
     }
 
     @PostMapping("/operator/search")
@@ -49,56 +59,78 @@ public class CarController {
     }
 
 
-    @PutMapping("/driver/{carNumber}/location")
-    public Car updateCarLocation(@PathVariable String carNumber, @RequestBody Map<String, CarLocation> body){
-        String carId = carNumber.toUpperCase();
-        Car car = carRepository.findCarByCarNumber(carId);
-        car.setCarLocation(body.get("location"));
+    @PostMapping("/driver/{carNumber}/location/inside")
+    public Car updateCarLocationInside(@PathVariable String carNumber){
+        Car car = carRepository.findCarByCarNumber(carNumber.toUpperCase());
+        car.setCarLocation(CarLocation.INSIDE);
         return carRepository.save(car);
     }
 
-    @PostMapping("/driver/{carNumber}/parkingMeter")
-    public Car updateParkingMeterStatus(@PathVariable String carNum, @RequestBody Map<String, ParkingMeterStatus> body) throws ParseException {
-        String carNumber = carNum.toUpperCase();
-        Car car = carRepository.findCarByCarNumber(carNumber);
-        ParkingMeterStatus status = body.get("parkingMeter");
+    @PostMapping("/driver/{carNumber}/location/outside")
+    public Car updateCarLocationOutside(@PathVariable String carNumber){
+        Car car = carRepository.findCarByCarNumber(carNumber.toUpperCase());
+        car.setCarLocation(CarLocation.OUTSIDE);
+        return carRepository.save(car);
+    }
 
-        if (status == ParkingMeterStatus.ON) {
-            Date date = java.util.Calendar.getInstance().getTime();
-            parkingMeterRepository.save(new ParkingMeter(carNumber, date, date,0));
-            car.setParkingMeterStatus(status);
-        }
-        else {
-            List<ParkingMeter> parkingMeters = parkingMeterRepository.findAllByCarNumber(carNumber);
-            parkingMeters.sort(Comparator.comparing(ParkingMeter::getCreatedAt).reversed());
-            ParkingMeter parkingMeter = parkingMeters.get(0);
-            Date date = java.util.Calendar.getInstance().getTime();
-            parkingMeter.setStoppedAt(date);
-            double cost = countCost(parkingMeter.getId());
-            parkingMeter.setCost(cost);
-            parkingMeterRepository.save(parkingMeter);
-            car.setParkingMeterStatus(ParkingMeterStatus.OFF);
-        }
+    @PostMapping("/driver/{carNumber}/parkingMeter/on")
+    public Car updateParkingMeterStatusON(@PathVariable String carNumber) throws ParseException {
+        Car car = carRepository.findCarByCarNumber(carNumber.toUpperCase());
+        LocalDateTime date = LocalDateTime.now();
+        parkingMeterRepository.save(new ParkingMeter(carNumber.toUpperCase(), date.toLocalTime(), date.toLocalTime(),
+                date.toLocalDate(), date.toLocalDate(), new BigDecimal("0.0")));
+        car.setParkingMeterStatus(ParkingMeterStatus.ON);
+
+        return carRepository.save(car);
+    }
+
+    @PostMapping("/driver/{carNumber}/parkingMeter/off")
+    public Car updateParkingMeterStatusOFF(@PathVariable String carNumber) throws ParseException{
+        Car car = carRepository.findCarByCarNumber(carNumber.toUpperCase());
+        LocalDateTime date = LocalDateTime.now();
+
+        List<ParkingMeter> parkingMeters = parkingMeterRepository.findAllByCarNumber(carNumber.toUpperCase());
+        parkingMeters.sort(Comparator.comparing(ParkingMeter::getCreatedAtDay).reversed());
+        ParkingMeter parkingMeter = parkingMeters.get(0);
+
+        parkingMeter.setStoppedAtDay(date.toLocalDate());
+        parkingMeter.setStoppedAtTime(date.toLocalTime());
+        BigDecimal cost = new BigDecimal(countCost(parkingMeter.getId()));
+        parkingMeter.setCost(cost);
+        parkingMeterRepository.save(parkingMeter);
+
+        car.setParkingMeterStatus(ParkingMeterStatus.OFF);
+
         return carRepository.save(car);
     }
 
     private double countCost(int id) throws ParseException {
         ParkingMeter meter = parkingMeterRepository.findParkingMeterById(id);
-        String carNumber = meter.getCarNumber();
-        Car car = carRepository.findCarByCarNumber(carNumber);
+        Car car = carRepository.findCarByCarNumber(meter.getCarNumber());
 
-        int diff = meter.getCreatedAt().getMinutes() - meter.getStoppedAt().getMinutes();
+        Period period = Period.between(meter.getCreatedAtDay(), meter.getStoppedAtDay());
+        long daysDiff = Math.abs(period.getDays())*1440;
+
+        Duration timeDuration = Duration.between(meter.getCreatedAtTime(), meter.getStoppedAtTime());
+        long minutesDiff = Math.abs(timeDuration.toMinutes());
+
+        long diff = minutesDiff+daysDiff;
         switch (car.getCarStatus()) {
             case VIP:
-                if (diff<60){ return 0; }
-                else if (diff<120){ return 2; }
-                else return 1.5*(diff%60 + 1); //TODO recursion
+                if (diff<60)
+                    return 0;
+                else if (diff<120)
+                    return 2;
+                else
+                    return 1.5*(diff%60 + 1); //TODO recursion
             case REGULAR:
-                if (diff<60){ return 1; }
-                else if (diff<120){ return 2; }
-                else return 1.2*(diff%60 + 1); //TODO recursion
-
-                        }
+                if (diff<60)
+                    return 1;
+                else if (diff<120)
+                    return 2;
+                else
+                    return 1.2*(diff%60 + 1); //TODO recursion
+                }
         return 0;
     }
 

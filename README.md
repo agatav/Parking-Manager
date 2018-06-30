@@ -13,6 +13,6 @@ A web application for managing the city parking spaces.
 | GET | /operator/cars/{id} | Show info about choosen car. |
 | GET | /operator/cars/number/{carNumber} | Show info about choosen car. |
 | GET | /driver/{carNumber} | Show all previous driver's parking meters. |
-| PUT | /driver/{carNumber}/location | Var. "location" changes location INSIDE/OUTSIDE. |
+| POST | /driver/{carNumber}/location | Var. "location" changes location INSIDE/OUTSIDE. |
 | POST | /driver/{carNumber}/parkingMeter | Var. "parkingMeter" changes the status of parking meter ON/OFF. |
 | POST | /operator/search | Var. "text" allows search by car number, location and car status. |

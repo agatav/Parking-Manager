@@ -1,10 +1,14 @@
 package com.example.app.entity;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 
 @Entity
-//@Table(name = "parking-meter")
 public class ParkingMeter {
 
     @Id
@@ -12,27 +16,25 @@ public class ParkingMeter {
     private int id;
 
     private String carNumber;
-    private Date createdAt;
-    private Date stoppedAt;
-    private double cost;
+    private LocalTime createdAtTime;
+    private LocalTime stoppedAtTime;
+    private LocalDate createdAtDay;
+    private LocalDate stoppedAtDay;
+    private BigDecimal cost;
 
 
     private ParkingMeter() { } // JPA only
 
-    public ParkingMeter(int id, String carNumber, Date createdAt, Date stoppedAt, double cost) {
-        this.setId(id);
-        this.setCarNumber(carNumber);
-        this.setCreatedAt(createdAt);
-        this.setStoppedAt(stoppedAt);
-        this.setCost(cost);
+    public ParkingMeter(String carNumber, LocalTime createdAtTime, LocalTime stoppedAtTime, LocalDate createdAtDay,
+                        LocalDate stoppedAtDay, BigDecimal cost) {
+        this.carNumber = carNumber;
+        this.createdAtTime = createdAtTime;
+        this.stoppedAtTime = stoppedAtTime;
+        this.createdAtDay = createdAtDay;
+        this.stoppedAtDay = stoppedAtDay;
+        this.cost = cost;
     }
 
-    public ParkingMeter(String carNumber, Date createdAt, Date stoppedAt, double cost) {
-        this.setCarNumber(carNumber);
-        this.setCreatedAt(createdAt);
-        this.setStoppedAt(stoppedAt);
-        this.setCost(cost);
-    }
 
     public int getId() {
         return id;
@@ -50,27 +52,43 @@ public class ParkingMeter {
         this.carNumber = carNumber;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
+    public LocalTime getCreatedAtTime() {
+        return createdAtTime;
     }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
+    public void setCreatedAtTime(LocalTime createdAtTime) {
+        this.createdAtTime = createdAtTime;
     }
 
-    public Date getStoppedAt() {
-        return stoppedAt;
+    public LocalTime getStoppedAtTime() {
+        return stoppedAtTime;
     }
 
-    public void setStoppedAt(Date stoppedAt) {
-        this.stoppedAt = stoppedAt;
+    public void setStoppedAtTime(LocalTime stoppedAtTime) {
+        this.stoppedAtTime = stoppedAtTime;
     }
 
-    public double getCost() {
+    public LocalDate getCreatedAtDay() {
+        return createdAtDay;
+    }
+
+    public void setCreatedAtDay(LocalDate createdAtDay) {
+        this.createdAtDay = createdAtDay;
+    }
+
+    public LocalDate getStoppedAtDay() {
+        return stoppedAtDay;
+    }
+
+    public void setStoppedAtDay(LocalDate stoppedAtDay) {
+        this.stoppedAtDay = stoppedAtDay;
+    }
+
+    public BigDecimal getCost() {
         return cost;
     }
 
-    public void setCost(double cost) {
+    public void setCost(BigDecimal cost) {
         this.cost = cost;
     }
 
@@ -80,8 +98,10 @@ public class ParkingMeter {
         return "ParkingMeter{" +
                 "id=" + id +
                 ", car Number='" + carNumber + '\'' +
-                ", createdAt='" + createdAt.toString() + '\'' +
-                ", stoppedAt='" + stoppedAt.toString() + '\'' +
+                ", createdAtDay='" + createdAtDay.toString() + '\'' +
+                ", createdAtTime='" + createdAtTime.toString() + '\'' +
+                ", stoppedAtDay='" + stoppedAtTime.toString() + '\'' +
+                ", stoppedAtTime='" + stoppedAtDay.toString() + '\'' +
                 ", cost='" + cost + '\'' +
                 '}';
     }
