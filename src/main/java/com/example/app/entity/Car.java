@@ -2,6 +2,8 @@ package com.example.app.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,15 +12,16 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
+@RequiredArgsConstructor
 public class Car {
 
     @Id
     @GeneratedValue
     private int id;
-    private String carNumber;
-    private CarLocation carLocation;
-    private CarStatus carStatus;
-    private ParkingMeterStatus parkingMeterStatus;
+    @NonNull private String carNumber;
+    @NonNull private CarLocation carLocation;
+    @NonNull private CarStatus carStatus;
+    @NonNull private ParkingMeterStatus parkingMeterStatus;
 
 
     @Override
